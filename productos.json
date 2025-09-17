@@ -1,0 +1,26 @@
+[
+  {
+    "id": 101,
+    "nombre": "Smartwatch Pro",
+    "desc": "Reloj inteligente con monitor de ritmo cardíaco y GPS.",
+    "precio": 150.50,
+    "imagen": "smartwatch_pro.jpg",
+    "disponible": true
+  },
+  {
+    "id": 102,
+    "nombre": "Auriculares Inalámbricos TWS",
+    "desc": "Auriculares con cancelación de ruido y 24hs de batería.",
+    "precio": 75.99,
+    "imagen": "auriculares_tws.jpg",
+    "disponible": true
+  },
+  {
+    "id": 103,
+    "nombre": "Teclado Mecánico RGB",
+    "desc": "Teclado para gaming con retroiluminación RGB personalizable.",
+    "precio": 99.00,
+    "imagen": "teclado_rgb.jpg",
+    "disponible": false
+  }
+]

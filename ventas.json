@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1001,
+    "id_usuario": 1,
+    "fecha": "2025-09-15T10:30:00Z",
+    "total": 226.49,
+    "direccion": "Av. Siempre Viva 742",
+    "productos": [
+      {
+        "id_producto": 101,
+        "cantidad": 1,
+        "precio_unitario": 150.50
+      },
+      {
+        "id_producto": 102,
+        "cantidad": 1,
+        "precio_unitario": 75.99
+      }
+    ]
+  },
+  {
+    "id": 1002,
+    "id_usuario": 2,
+    "fecha": "2025-09-17T14:00:00Z",
+    "total": 151.98,
+    "direccion": "Calle Falsa 123",
+    "productos": [
+      {
+        "id_producto": 102,
+        "cantidad": 2,
+        "precio_unitario": 75.99
+      }
+    ]
+  }
+]

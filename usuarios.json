@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "nombre": "Ana",
+    "apellido": "García",
+    "email": "ana.garcia@email.com",
+    "contraseña": "password123"
+  },
+  {
+    "id": 2,
+    "nombre": "Carlos",
+    "apellido": "Martinez",
+    "email": "carlos.martinez@email.com",
+    "contraseña": "securepass456"
+  }
+]
