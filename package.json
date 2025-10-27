@@ -1,0 +1,23 @@
+{
+  "name": "proyecto-tienda-online",
+  "version": "1.0.0",
+  "description": "Este repositorio contiene estructuras de datos en formato **JSON** para un sistema de e-commerce ficticio llamado **MultiGadgets**, especializado en artículos para el hogar y tecnología.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Diego2296/entrega1-aplicaciones-web-2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Diego2296/entrega1-aplicaciones-web-2/issues"
+  },
+  "homepage": "https://github.com/Diego2296/entrega1-aplicaciones-web-2#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

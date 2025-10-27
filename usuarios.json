@@ -12,5 +12,12 @@
     "apellido": "Martinez",
     "email": "carlos.martinez@email.com",
     "contraseña": "securepass456"
+  },
+  {
+    "id": 4,
+    "nombre": "Borrar",
+    "apellido": "Me",
+    "email": "borrar@email.com",
+    "contraseña": "del"
   }
 ]
