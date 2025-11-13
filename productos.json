@@ -1,9 +1,9 @@
 [
   {
     "id": 101,
-    "nombre": "Smartwatch Pro",
+    "nombre": "Galaxy watch 8",
     "desc": "Reloj inteligente con monitor de ritmo cardíaco y GPS.",
-    "precio": 150.50,
+    "precio": "350",
     "imagen": "smartwatch_pro.jpg",
     "disponible": true
   },
@@ -19,7 +19,7 @@
     "id": 103,
     "nombre": "Teclado Mecánico RGB",
     "desc": "Teclado para gaming con retroiluminación RGB personalizable.",
-    "precio": 99.00,
+    "precio": 99,
     "imagen": "teclado_rgb.jpg",
     "disponible": false
   }

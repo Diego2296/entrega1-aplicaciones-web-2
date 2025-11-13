@@ -31,6 +31,12 @@
 
 ## Usuarios
 
+### GET `/usuarios`
+- **Descripción:** Devuelve una lista con todos los usuarios registrados.
+- **Respuesta:**
+  - `200 OK`: Array de objetos de usuario.
+  - `500 Internal Server Error`: Si hay un error al leer los datos.
+
 ### POST `/cargarUsuario`
 - **Descripción:** Crea un nuevo registro de usuario. Los datos del usuario se envían en el cuerpo (body) de la solicitud en formato JSON.
 - **Cuerpo (Body) - JSON:** `{ "nombre": "...", "apellido": "...", "email": "...", "contraseña": "..." }`

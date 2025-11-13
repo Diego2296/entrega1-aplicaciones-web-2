@@ -1,4 +1,4 @@
-// server.mjs
+// server.js
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -50,7 +50,7 @@ async function writeData(fileName, data) {
 // -------------------------------------------------
 
 
-// server.mjs
+// server.js
 // ... (funciones auxiliares de arriba) ...
 
 import express from 'express';
@@ -94,6 +94,12 @@ app.get('/productos/:desde/:hasta', (req, res) => {
 
   const productosFiltrados = productos.filter(p => p.precio >= minPrecio && p.precio <= maxPrecio);
   res.status(200).json(productosFiltrados);
+});
+
+// GET /usuarios -> devuelve todos los usuarios (Req. nueva)
+app.get('/usuarios', (req, res) => {
+  // Los datos ya están en la variable 'usuarios' cargada en memoria
+  res.status(200).json(usuarios); 
 });
 
 // POST /cargarUsuario -> carga un nuevo usuario (Req. 1 POST)
@@ -202,6 +208,17 @@ app.delete('/usuarios/:id', async (req, res) => {
     res.status(204).send(); // 204 No Content (éxito sin cuerpo de respuesta)
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al eliminar el usuario.' });
+  }
+});
+
+
+// GET /ventas -> devuelve todas las ventas
+app.get('/ventas', (req, res) => {
+  if (ventas.length > 0) {
+    res.status(200).json(ventas);
+  } else {
+    // Es bueno manejar el caso de que no haya ventas
+    res.status(200).json([]); 
   }
 });
 

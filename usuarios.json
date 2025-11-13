@@ -19,5 +19,12 @@
     "apellido": "Me",
     "email": "borrar@email.com",
     "contraseña": "del"
+  },
+  {
+    "id": 5,
+    "nombre": "Martin",
+    "apellido": "Sanchez",
+    "email": "martin23@gmail.com",
+    "contraseña": "martin123"
   }
 ]
