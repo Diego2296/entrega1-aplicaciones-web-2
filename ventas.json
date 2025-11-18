@@ -9,7 +9,7 @@
       {
         "id_producto": 101,
         "cantidad": 1,
-        "precio_unitario": 150.50
+        "precio_unitario": 150.5
       },
       {
         "id_producto": 102,
@@ -29,6 +29,302 @@
         "id_producto": 102,
         "cantidad": 2,
         "precio_unitario": 75.99
+      }
+    ]
+  },
+  {
+    "id": 1003,
+    "id_usuario": 1,
+    "fecha": "2025-11-17T16:16:44.963Z",
+    "total": 425.99,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 101,
+        "cantidad": 1,
+        "precio_unitario": 350
+      },
+      {
+        "id_producto": 102,
+        "cantidad": 1,
+        "precio_unitario": 75.99
+      }
+    ]
+  },
+  {
+    "id": 1004,
+    "id_usuario": 1,
+    "fecha": "2025-11-17T16:26:30.503Z",
+    "total": 350,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 101,
+        "cantidad": 1,
+        "precio_unitario": 350
+      }
+    ]
+  },
+  {
+    "id": 1005,
+    "id_usuario": 1,
+    "fecha": "2025-11-17T16:50:03.523Z",
+    "total": 350,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 101,
+        "cantidad": 1,
+        "precio_unitario": 350
+      }
+    ]
+  },
+  {
+    "id": 1006,
+    "id_usuario": 5,
+    "fecha": "2025-11-17T16:51:41.058Z",
+    "total": 425.99,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 101,
+        "cantidad": 1,
+        "precio_unitario": 350
+      },
+      {
+        "id_producto": 102,
+        "cantidad": 1,
+        "precio_unitario": 75.99
+      }
+    ]
+  },
+  {
+    "id": 1007,
+    "id_usuario": 5,
+    "fecha": "2025-11-17T17:00:15.914Z",
+    "total": 350,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 101,
+        "cantidad": 1,
+        "precio_unitario": 350
+      }
+    ]
+  },
+  {
+    "id": 1008,
+    "id_usuario": 5,
+    "fecha": "2025-11-17T17:01:26.116Z",
+    "total": 425.99,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 102,
+        "cantidad": 1,
+        "precio_unitario": 75.99
+      },
+      {
+        "id_producto": 101,
+        "cantidad": 1,
+        "precio_unitario": 350
+      }
+    ]
+  },
+  {
+    "id": 1009,
+    "id_usuario": 5,
+    "fecha": "2025-11-17T17:02:22.829Z",
+    "total": 99,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 103,
+        "cantidad": 1,
+        "precio_unitario": 99
+      }
+    ]
+  },
+  {
+    "id": 1010,
+    "id_usuario": 5,
+    "fecha": "2025-11-17T17:03:07.991Z",
+    "total": 350,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 101,
+        "cantidad": 1,
+        "precio_unitario": 350
+      }
+    ]
+  },
+  {
+    "id": 1011,
+    "id_usuario": 5,
+    "fecha": "2025-11-17T17:03:40.572Z",
+    "total": 75.99,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 102,
+        "cantidad": 1,
+        "precio_unitario": 75.99
+      }
+    ]
+  },
+  {
+    "id": 1012,
+    "id_usuario": 2,
+    "fecha": "2025-11-17T17:04:59.008Z",
+    "total": 524.99,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 101,
+        "cantidad": 1,
+        "precio_unitario": 350
+      },
+      {
+        "id_producto": 102,
+        "cantidad": 1,
+        "precio_unitario": 75.99
+      },
+      {
+        "id_producto": 103,
+        "cantidad": 1,
+        "precio_unitario": 99
+      }
+    ]
+  },
+  {
+    "id": 1013,
+    "id_usuario": 2,
+    "fecha": "2025-11-17T17:05:47.638Z",
+    "total": 75.99,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 102,
+        "cantidad": 1,
+        "precio_unitario": 75.99
+      }
+    ]
+  },
+  {
+    "id": 1014,
+    "id_usuario": 5,
+    "fecha": "2025-11-17T22:19:37.523Z",
+    "total": 151.98,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 102,
+        "cantidad": 2,
+        "precio_unitario": 75.99
+      }
+    ]
+  },
+  {
+    "id": 1015,
+    "id_usuario": 5,
+    "fecha": "2025-11-17T22:20:10.596Z",
+    "total": 350,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 101,
+        "cantidad": 1,
+        "precio_unitario": 350
+      }
+    ]
+  },
+  {
+    "id": 1016,
+    "id_usuario": 5,
+    "fecha": "2025-11-17T22:35:33.113Z",
+    "total": 425.99,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 101,
+        "cantidad": 1,
+        "precio_unitario": 350
+      },
+      {
+        "id_producto": 102,
+        "cantidad": 1,
+        "precio_unitario": 75.99
+      }
+    ]
+  },
+  {
+    "id": 1017,
+    "id_usuario": 5,
+    "fecha": "2025-11-17T22:39:51.700Z",
+    "total": 350,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 101,
+        "cantidad": 1,
+        "precio_unitario": 350
+      }
+    ]
+  },
+  {
+    "id": 1018,
+    "id_usuario": 5,
+    "fecha": "2025-11-17T22:55:50.642Z",
+    "total": 75.99,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 102,
+        "cantidad": 1,
+        "precio_unitario": 75.99
+      }
+    ]
+  },
+  {
+    "id": 1019,
+    "id_usuario": 5,
+    "fecha": "2025-11-17T23:13:35.707Z",
+    "total": 350,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 101,
+        "cantidad": 1,
+        "precio_unitario": 350
+      }
+    ]
+  },
+  {
+    "id": 1020,
+    "id_usuario": 5,
+    "fecha": "2025-11-17T23:15:10.089Z",
+    "total": 75.99,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 102,
+        "cantidad": 1,
+        "precio_unitario": 75.99
+      }
+    ]
+  },
+  {
+    "id": 1021,
+    "id_usuario": 5,
+    "fecha": "2025-11-17T23:43:30.662Z",
+    "total": 350,
+    "direccion": "Dirección de ejemplo",
+    "productos": [
+      {
+        "id_producto": 101,
+        "cantidad": 1,
+        "precio_unitario": 350
       }
     ]
   }

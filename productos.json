@@ -5,7 +5,8 @@
     "desc": "Reloj inteligente con monitor de ritmo cardíaco y GPS.",
     "precio": "350",
     "imagen": "smartwatch_pro.jpg",
-    "disponible": true
+    "disponible": true,
+    "tipo": "Smartwatch"
   },
   {
     "id": 102,
@@ -13,7 +14,8 @@
     "desc": "Auriculares con cancelación de ruido y 24hs de batería.",
     "precio": 75.99,
     "imagen": "auriculares_tws.jpg",
-    "disponible": true
+    "disponible": true,
+    "tipo": "Auricular"
   },
   {
     "id": 103,
@@ -21,6 +23,7 @@
     "desc": "Teclado para gaming con retroiluminación RGB personalizable.",
     "precio": 99,
     "imagen": "teclado_rgb.jpg",
-    "disponible": false
+    "disponible": true,
+    "tipo": "Teclado"
   }
 ]
