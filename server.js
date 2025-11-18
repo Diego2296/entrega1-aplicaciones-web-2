@@ -2,16 +2,18 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import express from 'express';
 
-// Helper para obtener la ruta absoluta del directorio actual (compatible con ES Modules)
+// --- Constantes y Helpers ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const PORT = 3000;
 
 // --- Funciones Auxiliares para Manejo de Datos ---
 
 /**
  * Lee los datos desde un archivo JSON.
- * @param {string} fileName - Nombre del archivo JSON (sin extensión).
+ * @param {string} fileName - Nombre del archivo JSON.
  * @returns {Promise<Array|Object>} - Promesa que resuelve con los datos parseados.
  */
 async function readData(fileName) {
@@ -20,13 +22,11 @@ async function readData(fileName) {
     const data = await readFile(filePath, 'utf-8');
     return JSON.parse(data);
   } catch (error) {
-    // Si el archivo no existe o hay otro error, considera devolver un estado inicial o lanzar el error
     console.error(`Error leyendo el archivo ${fileName}.json:`, error);
-    // Podríamos inicializar con un array vacío si el archivo no existe la primera vez
     if (error.code === 'ENOENT') {
-      return []; // O un objeto vacío {} según la estructura esperada
+      return []; // Devuelve array vacío si no existe
     }
-    throw error; // Relanzar otros errores
+    throw error;
   }
 }
 
@@ -39,7 +39,6 @@ async function readData(fileName) {
 async function writeData(fileName, data) {
   const filePath = path.join(__dirname, `${fileName}.json`);
   try {
-    // Usamos null, 2 para formatear el JSON con indentación para legibilidad
     await writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
   } catch (error) {
     console.error(`Error escribiendo el archivo ${fileName}.json:`, error);
@@ -47,107 +46,102 @@ async function writeData(fileName, data) {
   }
 }
 
-// -------------------------------------------------
-
-
-// server.js
-// ... (funciones auxiliares de arriba) ...
-
-import express from 'express';
-
 // --- Inicialización de Express ---
 const app = express();
-const PORT = 3000; 
 
-// Middleware para parsear JSON en el cuerpo de las solicitudes POST/PUT
-app.use(express.json()); 
+// --- Middlewares ---
+app.use(express.json()); // Para parsear JSON en el body
+// Servir archivos estáticos desde la carpeta 'public'
+app.use(express.static(path.join(__dirname, 'public')));
 
-// --- Carga inicial de datos (en memoria para simplificar) ---
-
+// --- Carga inicial de datos (en memoria) ---
 let usuarios = [];
 let productos = [];
 let ventas = [];
 
 async function cargarDatosIniciales() {
-  usuarios = await readData('usuarios');
-  productos = await readData('productos');
-  ventas = await readData('ventas');
+  try {
+    usuarios = await readData('usuarios');
+    productos = await readData('productos');
+    ventas = await readData('ventas');
+  } catch (error) {
+    console.error("Error fatal al cargar datos iniciales. Saliendo.", error);
+    process.exit(1); // Si no podemos leer los datos, no iniciamos el server.
+  }
 }
 
 // --- Rutas de la API ---
 
-// GET /productos -> devuelve todos los productos (Req. 1 GET)
+// GET /productos -> devuelve todos los productos
 app.get('/productos', (req, res) => {
-  res.status(200).json(productos); 
+  res.status(200).json(productos);
 });
 
-// GET /productos/:desde/:hasta -> devuelve productos en rango de precios (Req. 2 GET)
-// Nota: Tomamos :desde y :hasta como parámetros de ruta
+// GET /productos/:desde/:hasta -> devuelve productos en rango de precios
 app.get('/productos/:desde/:hasta', (req, res) => {
-  const { desde, hasta } = req.params; // [
+  const { desde, hasta } = req.params;
   const minPrecio = parseFloat(desde);
   const maxPrecio = parseFloat(hasta);
 
   if (isNaN(minPrecio) || isNaN(maxPrecio)) {
-    return res.status(400).json({ mensaje: 'Los parámetros desde y hasta deben ser números.' }); 
+    return res.status(400).json({ mensaje: 'Los parámetros desde y hasta deben ser números.' });
   }
 
   const productosFiltrados = productos.filter(p => p.precio >= minPrecio && p.precio <= maxPrecio);
   res.status(200).json(productosFiltrados);
 });
 
-// GET /usuarios -> devuelve todos los usuarios (Req. nueva)
+// GET /usuarios -> devuelve todos los usuarios
 app.get('/usuarios', (req, res) => {
-  // Los datos ya están en la variable 'usuarios' cargada en memoria
-  res.status(200).json(usuarios); 
+  res.status(200).json(usuarios);
 });
 
-// POST /cargarUsuario -> carga un nuevo usuario (Req. 1 POST)
+// POST /cargarUsuario -> carga un nuevo usuario
 app.post('/cargarUsuario', async (req, res) => {
-  const { nombre, apellido, email, contraseña } = req.body; 
+  const { nombre, apellido, email, contraseña } = req.body;
 
   if (!nombre || !apellido || !email || !contraseña) {
     return res.status(400).json({ mensaje: 'Faltan datos requeridos para crear el usuario.' });
   }
 
-  // Simple generación de ID 
   const nuevoId = usuarios.length > 0 ? Math.max(...usuarios.map(u => u.id)) + 1 : 1;
   const nuevoUsuario = {
     id: nuevoId,
     nombre,
     apellido,
     email,
-    contraseña // ¡OJO! En una app real, NUNCA guardes contraseñas en texto plano
+    contraseña
   };
 
   usuarios.push(nuevoUsuario);
   try {
     await writeData('usuarios', usuarios);
-    res.status(201).json(nuevoUsuario); // 201 Created 
+    res.status(201).json(nuevoUsuario);
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al guardar el nuevo usuario.' }); 
+    res.status(500).json({ mensaje: 'Error al guardar el nuevo usuario.' });
   }
 });
 
-// POST /login -> ingreso de un usuario ya cargado (Req. 2 POST - Datos sensibles)
+// POST /login -> ingreso de un usuario
 app.post('/login', (req, res) => {
   const { email, contraseña } = req.body;
 
   if (!email || !contraseña) {
     return res.status(400).json({ mensaje: 'Faltan email o contraseña.' });
   }
-
+  
+  // NUNCA compares contraseñas en texto plano en producción. Esto es solo para simular.
   const usuarioEncontrado = usuarios.find(u => u.email === email && u.contraseña === contraseña);
 
   if (usuarioEncontrado) {
-
-    res.status(200).json({ mensaje: 'Login exitoso', usuarioId: usuarioEncontrado.id });
+    res.status(200).json({ 
+      mensaje: 'Login exitoso', usuarioId: usuarioEncontrado.id, nombre: usuarioEncontrado.nombre});
   } else {
-    res.status(401).json({ mensaje: 'Credenciales inválidas.' }); // 401 Unauthorized
+    res.status(401).json({ mensaje: 'Credenciales inválidas.' });
   }
 });
 
-// PUT /productos/:id -> actualiza un producto existente (Req. PUT)
+// PUT /productos/:id -> actualiza un producto
 app.put('/productos/:id', async (req, res) => {
   const { id } = req.params;
   const datosActualizar = req.body;
@@ -160,11 +154,9 @@ app.put('/productos/:id', async (req, res) => {
   const indiceProducto = productos.findIndex(p => p.id === productoId);
 
   if (indiceProducto === -1) {
-    return res.status(404).json({ mensaje: 'Producto no encontrado.' }); // 404 Not Found
+    return res.status(404).json({ mensaje: 'Producto no encontrado.' });
   }
 
-  // Actualiza el producto
-  // Usamos el spread operator para mantener los campos no enviados
   productos[indiceProducto] = { ...productos[indiceProducto], ...datosActualizar };
 
   try {
@@ -175,7 +167,7 @@ app.put('/productos/:id', async (req, res) => {
   }
 });
 
-// DELETE /usuarios/:id -> elimina un usuario (Req. DELETE con integridad)
+// DELETE /usuarios/:id -> elimina un usuario
 app.delete('/usuarios/:id', async (req, res) => {
   const { id } = req.params;
   const usuarioId = parseInt(id);
@@ -184,15 +176,13 @@ app.delete('/usuarios/:id', async (req, res) => {
     return res.status(400).json({ mensaje: 'El ID debe ser numérico.' });
   }
 
-  // ---- Verificación de Integridad ----
   const ventasUsuario = ventas.filter(v => v.id_usuario === usuarioId);
   if (ventasUsuario.length > 0) {
-    return res.status(409).json({ // 409 Conflict
+    return res.status(409).json({
       mensaje: 'Conflicto: No se puede eliminar el usuario porque tiene ventas asociadas.',
-      ventasAsociadas: ventasUsuario.map(v => v.id) // Devuelve solo los IDs de las ventas asociadas
+      ventasAsociadas: ventasUsuario.map(v => v.id)
     });
   }
-  // ------------------------------------
 
   const indiceUsuario = usuarios.findIndex(u => u.id === usuarioId);
 
@@ -200,29 +190,80 @@ app.delete('/usuarios/:id', async (req, res) => {
     return res.status(404).json({ mensaje: 'Usuario no encontrado.' });
   }
 
-  // Elimina el usuario del array
   usuarios.splice(indiceUsuario, 1);
 
   try {
     await writeData('usuarios', usuarios);
-    res.status(204).send(); // 204 No Content (éxito sin cuerpo de respuesta)
+    res.status(204).send();
   } catch (error) {
     res.status(500).json({ mensaje: 'Error al eliminar el usuario.' });
   }
 });
 
-
 // GET /ventas -> devuelve todas las ventas
 app.get('/ventas', (req, res) => {
-  if (ventas.length > 0) {
-    res.status(200).json(ventas);
-  } else {
-    // Es bueno manejar el caso de que no haya ventas
-    res.status(200).json([]); 
+  res.status(200).json(ventas);
+});
+
+// ----------------------------------------------------------------
+// Requerimiento 4: Comprar
+// ----------------------------------------------------------------
+/**
+ * Crea una nueva venta.
+ * Recibe: { id_usuario: number, productos: [{ id_producto: number, cantidad: number }] }
+ * El precio y el total se calculan en el backend por seguridad.
+ */
+app.post('/ventas', async (req, res) => {
+  const { id_usuario, productos: productosVenta } = req.body; // { id_producto, cantidad }
+
+  if (!id_usuario || !productosVenta || !Array.isArray(productosVenta) || productosVenta.length === 0) {
+    return res.status(400).json({ mensaje: 'Faltan datos requeridos: id_usuario o productos.' });
+  }
+
+  try {
+    let totalVenta = 0;
+    const productosConPrecio = [];
+
+    // Validar productos y calcular total (Lógica de negocio en el backend)
+    for (const item of productosVenta) {
+      const productoDB = productos.find(p => p.id === item.id_producto);
+      if (!productoDB) {
+        return res.status(404).json({ mensaje: `Producto con ID ${item.id_producto} no encontrado.` });
+      }
+
+      const precioUnitario = parseFloat(productoDB.precio);
+      totalVenta += precioUnitario * item.cantidad;
+      productosConPrecio.push({
+        id_producto: item.id_producto,
+        cantidad: item.cantidad,
+        precio_unitario: precioUnitario // Aseguramos el precio desde el servidor
+      });
+    }
+
+    const nuevaIdVenta = ventas.length > 0 ? Math.max(...ventas.map(v => v.id)) + 1 : 1001;
+    
+    const nuevaVenta = {
+      id: nuevaIdVenta,
+      id_usuario: parseInt(id_usuario),
+      fecha: new Date().toISOString(),
+      total: totalVenta,
+      direccion: "Dirección de ejemplo", // En un caso real, esto vendría del body
+      productos: productosConPrecio
+    };
+
+    ventas.push(nuevaVenta);
+    await writeData('ventas', ventas);
+    
+    // 201 Created
+    res.status(201).json(nuevaVenta); 
+  } catch (error) {
+    console.error("Error al procesar la venta:", error);
+    res.status(500).json({ mensaje: 'Error al procesar la venta.' });
   }
 });
 
-// --- Manejo de rutas no encontradas ---
+
+// --- Manejo de rutas no encontradas (404) ---
 app.use((req, res) => {
   res.status(404).json({ mensaje: `No se encontró el recurso: ${req.method} ${req.url}` });
 });

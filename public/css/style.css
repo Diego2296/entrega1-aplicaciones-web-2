@@ -1,0 +1,6 @@
+
+.product-card-img {
+  height: 280px; /* altura fija a todas las imágenes */
+  width: 100%;
+  object-fit: cover; /* escala la imagen para llenar el espacio sin deformarla. */
+}
