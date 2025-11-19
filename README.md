@@ -27,7 +27,6 @@ Seguir estos pasos para poner en marcha el proyecto:
 3.  **Configurar Variables de Entorno:**
     Crea un archivo llamado `.env` en la raíz del proyecto y defini las siguientes variables.
     
-    **Importante:** No compartas este archivo. Aca van tus credenciales reales.
 
     ```env
     PORT=3000
