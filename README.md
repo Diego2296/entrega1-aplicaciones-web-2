@@ -2,6 +2,13 @@
 
 Este proyecto es una aplicación web Full Stack para un e-commerce de productos tecnológicos. Incluye un backend RESTful con Node.js y Express, y un frontend estático servido por el mismo servidor. Utiliza MongoDB para la persistencia de datos.
 
+## 🌐 Demo en Vivo
+
+Este proyecto se encuentra desplegado utilizando los servicios de **Render**.
+Podes acceder a la aplicación funcionando a través del siguiente enlace:
+
+👉 **Link al proyecto:** https://tienda-multigadgets.onrender.com/
+
 ## 📋 Requisitos Previos
 
 Para ejecutar este proyecto localmente, es necesario tener instalado:
