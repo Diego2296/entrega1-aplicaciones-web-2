@@ -1,279 +1,185 @@
-// server.js
-import { readFile, writeFile } from 'node:fs/promises';
+import 'dotenv/config'; 
+import express from 'express';
+import cookieParser from 'cookie-parser';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import express from 'express';
 
-// --- Constantes y Helpers ---
+// Importa conexión y modelos
+import { connectDB } from './db/connect.js';
+import { Product } from './db/models/Product.js';
+import { User } from './db/models/User.js';
+import { Sale } from './db/models/Sale.js';
+
+// Importa utilidades de seguridad
+import { hashPassword, verifyPassword, generateToken, authenticateToken } from './utils/auth.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const PORT = 3000;
 
-// --- Funciones Auxiliares para Manejo de Datos ---
+// Utilizo el puerto que me da el entorno de Render (hosting de la app) o el 3000 para desarrollo local
+const PORT = process.env.PORT || 3000; 
 
-/**
- * Lee los datos desde un archivo JSON.
- * @param {string} fileName - Nombre del archivo JSON.
- * @returns {Promise<Array|Object>} - Promesa que resuelve con los datos parseados.
- */
-async function readData(fileName) {
-  const filePath = path.join(__dirname, `${fileName}.json`);
-  try {
-    const data = await readFile(filePath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error(`Error leyendo el archivo ${fileName}.json:`, error);
-    if (error.code === 'ENOENT') {
-      return []; // Devuelve array vacío si no existe
-    }
-    throw error;
-  }
-}
-
-/**
- * Escribe datos en un archivo JSON.
- * @param {string} fileName - Nombre del archivo JSON (sin extensión).
- * @param {Array|Object} data - Datos a escribir en el archivo.
- * @returns {Promise<void>} - Promesa que resuelve cuando la escritura finaliza.
- */
-async function writeData(fileName, data) {
-  const filePath = path.join(__dirname, `${fileName}.json`);
-  try {
-    await writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error(`Error escribiendo el archivo ${fileName}.json:`, error);
-    throw error;
-  }
-}
-
-// --- Inicialización de Express ---
 const app = express();
 
 // --- Middlewares ---
-app.use(express.json()); // Para parsear JSON en el body
-// Servir archivos estáticos desde la carpeta 'public'
+app.use(express.json());
+app.use(cookieParser()); // lee JWT de cookies
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- Carga inicial de datos (en memoria) ---
-let usuarios = [];
-let productos = [];
-let ventas = [];
+// --- Conexión a DB ---
+connectDB();
 
-async function cargarDatosIniciales() {
+// ================= RUTAS =================
+
+// GET /productos
+app.get('/productos', async (req, res) => {
   try {
-    usuarios = await readData('usuarios');
-    productos = await readData('productos');
-    ventas = await readData('ventas');
+    const productos = await Product.find();
+    res.status(200).json(productos);
   } catch (error) {
-    console.error("Error fatal al cargar datos iniciales. Saliendo.", error);
-    process.exit(1); // Si no podemos leer los datos, no iniciamos el server.
+    res.status(500).json({ mensaje: 'Error al obtener productos' });
   }
-}
-
-// --- Rutas de la API ---
-
-// GET /productos -> devuelve todos los productos
-app.get('/productos', (req, res) => {
-  res.status(200).json(productos);
 });
 
-// GET /productos/:desde/:hasta -> devuelve productos en rango de precios
-app.get('/productos/:desde/:hasta', (req, res) => {
+// GET /productos filtrado
+app.get('/productos/:desde/:hasta', async (req, res) => {
   const { desde, hasta } = req.params;
-  const minPrecio = parseFloat(desde);
-  const maxPrecio = parseFloat(hasta);
-
-  if (isNaN(minPrecio) || isNaN(maxPrecio)) {
-    return res.status(400).json({ mensaje: 'Los parámetros desde y hasta deben ser números.' });
+  try {
+    // Filtrado nativo de MongoDB 
+    const productos = await Product.find({
+      precio: { $gte: desde, $lte: hasta }
+    });
+    res.status(200).json(productos);
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al filtrar productos' });
   }
-
-  const productosFiltrados = productos.filter(p => p.precio >= minPrecio && p.precio <= maxPrecio);
-  res.status(200).json(productosFiltrados);
 });
 
-// GET /usuarios -> devuelve todos los usuarios
-app.get('/usuarios', (req, res) => {
-  res.status(200).json(usuarios);
-});
-
-// POST /cargarUsuario -> carga un nuevo usuario
+// POST /cargarUsuario (Registro con Encriptación)
 app.post('/cargarUsuario', async (req, res) => {
   const { nombre, apellido, email, contraseña } = req.body;
 
-  if (!nombre || !apellido || !email || !contraseña) {
-    return res.status(400).json({ mensaje: 'Faltan datos requeridos para crear el usuario.' });
+  if (!nombre || !email || !contraseña) {
+    return res.status(400).json({ mensaje: 'Faltan datos.' });
   }
 
-  const nuevoId = usuarios.length > 0 ? Math.max(...usuarios.map(u => u.id)) + 1 : 1;
-  const nuevoUsuario = {
-    id: nuevoId,
-    nombre,
-    apellido,
-    email,
-    contraseña
-  };
-
-  usuarios.push(nuevoUsuario);
   try {
-    await writeData('usuarios', usuarios);
-    res.status(201).json(nuevoUsuario);
+    const existe = await User.findOne({ email });
+    if (existe) return res.status(400).json({ mensaje: 'El email ya está registrado.' });
+
+    // 1. Encripta la contraseña
+    const hashedPassword = await hashPassword(contraseña);
+
+    // ID autoincremental 
+    const lastUser = await User.findOne().sort({ id: -1 });
+    const nuevoId = lastUser ? lastUser.id + 1 : 1;
+
+    // 2. Guarda con la contraseña encriptada
+    const nuevoUsuario = new User({
+      id: nuevoId,
+      nombre,
+      apellido,
+      email,
+      contraseña: hashedPassword 
+    });
+
+    await nuevoUsuario.save();
+    res.status(201).json({ mensaje: 'Usuario creado', id: nuevoId });
+
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al guardar el nuevo usuario.' });
+    console.error(error);
+    res.status(500).json({ mensaje: 'Error al registrar usuario.' });
   }
 });
 
-// POST /login -> ingreso de un usuario
-app.post('/login', (req, res) => {
+// POST /login (Verificación + JWT)
+app.post('/login', async (req, res) => {
   const { email, contraseña } = req.body;
 
-  if (!email || !contraseña) {
-    return res.status(400).json({ mensaje: 'Faltan email o contraseña.' });
-  }
-  
-  // NUNCA compares contraseñas en texto plano en producción. Esto es solo para simular.
-  const usuarioEncontrado = usuarios.find(u => u.email === email && u.contraseña === contraseña);
-
-  if (usuarioEncontrado) {
-    res.status(200).json({ 
-      mensaje: 'Login exitoso', usuarioId: usuarioEncontrado.id, nombre: usuarioEncontrado.nombre});
-  } else {
-    res.status(401).json({ mensaje: 'Credenciales inválidas.' });
-  }
-});
-
-// PUT /productos/:id -> actualiza un producto
-app.put('/productos/:id', async (req, res) => {
-  const { id } = req.params;
-  const datosActualizar = req.body;
-  const productoId = parseInt(id);
-
-  if (isNaN(productoId)) {
-    return res.status(400).json({ mensaje: 'El ID debe ser numérico.' });
-  }
-
-  const indiceProducto = productos.findIndex(p => p.id === productoId);
-
-  if (indiceProducto === -1) {
-    return res.status(404).json({ mensaje: 'Producto no encontrado.' });
-  }
-
-  productos[indiceProducto] = { ...productos[indiceProducto], ...datosActualizar };
-
   try {
-    await writeData('productos', productos);
-    res.status(200).json(productos[indiceProducto]);
-  } catch (error) {
-    res.status(500).json({ mensaje: 'Error al actualizar el producto.' });
-  }
-});
+    const usuario = await User.findOne({ email });
+    if (!usuario) return res.status(401).json({ mensaje: 'Credenciales inválidas.' });
 
-// DELETE /usuarios/:id -> elimina un usuario
-app.delete('/usuarios/:id', async (req, res) => {
-  const { id } = req.params;
-  const usuarioId = parseInt(id);
+    // 1. Verifica contraseña encriptada
+    const esValida = await verifyPassword(contraseña, usuario.contraseña);
+    if (!esValida) return res.status(401).json({ mensaje: 'Credenciales inválidas.' });
 
-  if (isNaN(usuarioId)) {
-    return res.status(400).json({ mensaje: 'El ID debe ser numérico.' });
-  }
+    // 2. Genera Token JWT
+    const token = generateToken(usuario);
 
-  const ventasUsuario = ventas.filter(v => v.id_usuario === usuarioId);
-  if (ventasUsuario.length > 0) {
-    return res.status(409).json({
-      mensaje: 'Conflicto: No se puede eliminar el usuario porque tiene ventas asociadas.',
-      ventasAsociadas: ventasUsuario.map(v => v.id)
+    // 3. Envia Token en una Cookie (HttpOnly para seguridad)
+    res.cookie('auth_token', token, {
+      httpOnly: true, // no accesible desde JS del cliente
+      maxAge: 3600000 // 1 hora
     });
-  }
 
-  const indiceUsuario = usuarios.findIndex(u => u.id === usuarioId);
+    res.status(200).json({ 
+      mensaje: 'Login exitoso', 
+      usuarioId: usuario.id, 
+      nombre: usuario.nombre 
+    });
 
-  if (indiceUsuario === -1) {
-    return res.status(404).json({ mensaje: 'Usuario no encontrado.' });
-  }
-
-  usuarios.splice(indiceUsuario, 1);
-
-  try {
-    await writeData('usuarios', usuarios);
-    res.status(204).send();
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al eliminar el usuario.' });
+    console.error(error);
+    res.status(500).json({ mensaje: 'Error en el servidor.' });
   }
 });
 
-// GET /ventas -> devuelve todas las ventas
-app.get('/ventas', (req, res) => {
-  res.status(200).json(ventas);
+// POST /logout
+app.post('/logout', (req, res) => {
+  res.clearCookie('auth_token');
+  res.status(200).json({ mensaje: 'Sesión cerrada' });
 });
 
-// ----------------------------------------------------------------
-// Requerimiento 4: Comprar
-// ----------------------------------------------------------------
-/**
- * Crea una nueva venta.
- * Recibe: { id_usuario: number, productos: [{ id_producto: number, cantidad: number }] }
- * El precio y el total se calculan en el backend por seguridad.
- */
-app.post('/ventas', async (req, res) => {
-  const { id_usuario, productos: productosVenta } = req.body; // { id_producto, cantidad }
+// POST /ventas (Ruta Protegida con JWT)
+// Agrega 'authenticateToken' como middleware antes de la función
+app.post('/ventas', authenticateToken, async (req, res) => {
+  const { productos: productosVenta } = req.body;
+  const usuarioId = req.user.id; // Obtiene el ID del usuario desde el TOKEN
 
-  if (!id_usuario || !productosVenta || !Array.isArray(productosVenta) || productosVenta.length === 0) {
-    return res.status(400).json({ mensaje: 'Faltan datos requeridos: id_usuario o productos.' });
+  if (!productosVenta || productosVenta.length === 0) {
+    return res.status(400).json({ mensaje: 'No hay productos.' });
   }
 
   try {
     let totalVenta = 0;
-    const productosConPrecio = [];
+    const itemsProcesados = [];
 
-    // Validar productos y calcular total (Lógica de negocio en el backend)
     for (const item of productosVenta) {
-      const productoDB = productos.find(p => p.id === item.id_producto);
-      if (!productoDB) {
-        return res.status(404).json({ mensaje: `Producto con ID ${item.id_producto} no encontrado.` });
-      }
+      // Consulta a MongoDB
+      const productoDB = await Product.findOne({ id: item.id_producto });
+      if (!productoDB) return res.status(404).json({ mensaje: `Producto ${item.id_producto} no encontrado` });
 
-      const precioUnitario = parseFloat(productoDB.precio);
-      totalVenta += precioUnitario * item.cantidad;
-      productosConPrecio.push({
+      const subtotal = productoDB.precio * item.cantidad;
+      totalVenta += subtotal;
+      
+      itemsProcesados.push({
         id_producto: item.id_producto,
         cantidad: item.cantidad,
-        precio_unitario: precioUnitario // Aseguramos el precio desde el servidor
+        precio_unitario: productoDB.precio
       });
     }
 
-    const nuevaIdVenta = ventas.length > 0 ? Math.max(...ventas.map(v => v.id)) + 1 : 1001;
-    
-    const nuevaVenta = {
-      id: nuevaIdVenta,
-      id_usuario: parseInt(id_usuario),
-      fecha: new Date().toISOString(),
-      total: totalVenta,
-      direccion: "Dirección de ejemplo", // En un caso real, esto vendría del body
-      productos: productosConPrecio
-    };
+    const lastSale = await Sale.findOne().sort({ id: -1 });
+    const nuevoIdVenta = lastSale ? lastSale.id + 1 : 1001;
 
-    ventas.push(nuevaVenta);
-    await writeData('ventas', ventas);
-    
-    // 201 Created
-    res.status(201).json(nuevaVenta); 
+    const nuevaVenta = new Sale({
+      id: nuevoIdVenta,
+      id_usuario: usuarioId,
+      total: totalVenta,
+      productos: itemsProcesados
+    });
+
+    await nuevaVenta.save();
+    res.status(201).json({ id: nuevoIdVenta, mensaje: 'Venta registrada' });
+
   } catch (error) {
-    console.error("Error al procesar la venta:", error);
+    console.error(error);
     res.status(500).json({ mensaje: 'Error al procesar la venta.' });
   }
 });
 
-
-// --- Manejo de rutas no encontradas (404) ---
-app.use((req, res) => {
-  res.status(404).json({ mensaje: `No se encontró el recurso: ${req.method} ${req.url}` });
+// Iniciar
+app.listen(PORT, () => {
+  console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
-
-// --- Iniciar Servidor ---
-async function iniciarServidor() {
-  await cargarDatosIniciales();
-  app.listen(PORT, () => {
-    console.log(`Servidor escuchando en http://localhost:${PORT}`);
-  });
-}
-
-iniciarServidor();

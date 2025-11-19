@@ -3,3 +3,6 @@ node_modules/
 
 # Archivo de bloqueo de dependencias 
 package-lock.json
+
+# Variables de entorno (Seguridad)
+.env
