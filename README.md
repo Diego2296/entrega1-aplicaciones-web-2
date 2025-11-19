@@ -1,35 +1,73 @@
-# MultiGadgets
+# Proyecto Tienda Online - MultiGadgets
 
-Este repositorio contiene estructuras de datos en formato **JSON** para un sistema de e-commerce ficticio llamado **MultiGadgets**, especializado en artículos para el hogar y tecnología.
+Este proyecto es una aplicación web Full Stack para un e-commerce de productos tecnológicos. Incluye un backend RESTful con Node.js y Express, y un frontend estático servido por el mismo servidor. Utiliza MongoDB para la persistencia de datos.
 
----
+## 📋 Requisitos Previos
 
-### Estructura
+Para ejecutar este proyecto localmente, es necesario tener instalado:
 
--   `usuarios.json`: Contiene los datos de clientes registrados.
--   `productos.json`: Lista de productos disponibles en la tienda.
--   `ventas.json`: Registra las ventas realizadas, vinculando usuarios y productos.
+* **Node.js** (v14 o superior)
+* **MongoDB**: Puede ser una instancia local o una conexión a MongoDB Atlas (Nube).
 
----
+## 🚀 Instalación y Configuración
 
-### Relaciones
+Seguir estos pasos para poner en marcha el proyecto:
 
--   `ventas.json` referencia a `usuarios.json` mediante el campo **`id_usuario`**.
--   `ventas.json` referencia a `productos.json` mediante el campo **`id_producto`** dentro del array de **`productos`**.
+1.  **Clonar el repositorio:**
+    ```bash
+    git clone <https://github.com/Diego2296/entrega1-aplicaciones-web-2>
+    cd proyecto-tienda-online
+    ```
 
----
+2.  **Instalar dependencias:**
+    ```bash
+    npm install
+    ```
 
-### Tipos de datos incluidos
+3.  **Configurar Variables de Entorno:**
+    Crea un archivo llamado `.env` en la raíz del proyecto y defini las siguientes variables.
+    
+    **Importante:** No compartas este archivo. Aca van tus credenciales reales.
 
--   **Numéricos**: `id`, `precio`, `total`, `cantidad`.
--   **Cadenas**: `nombre`, `apellido`, `email`, `desc`, `direccion`.
--   **Booleanos**: `disponible` en `productos.json`.
+    ```env
+    PORT=3000
+    
+    # Opción A: Si usas MongoDB Local
+    MONGO_URI=mongodb://127.0.0.1:27017/tienda_multigadgets
+    
+    # Opción B: Si usas MongoDB Atlas (Nube)
+    # Reemplaza <usuario> y <password> con tus datos reales
+    # MONGO_URI==mongodb+srv://<usuario>:<password>@cluster0.owksr6d.mongodb.net/?appName=Cluster0
+    
+    # Clave para firmar los tokens (podes inventar una frase segura)
+    SECRET_KEY=escribe_aqui_tu_frase_secreta_segura
+    ```
 
----
+4.  **Carga Inicial de Datos (Semillero):**
+    Para poblar la base de datos con productos y usuarios de prueba, ejecutá:
+    ```bash
+    node seed.js
+    ```
+    *Deberías ver mensajes de éxito indicando que se insertaron productos y usuarios.*
 
-### Próximos pasos
+5.  **Iniciar el Servidor:**
+    ```bash
+    npm run dev
+    ```
 
-Estos datos serán utilizados en entregas posteriores para construir un sistema que permita:
--   Gestión de usuarios.
--   Listado de productos.
--   Registro y consulta de ventas.
+6.  **Ver el Proyecto:**
+    Abre tu navegador e ingresa a: http://localhost:3000
+
+## 🧪 Datos de Prueba
+
+Podes utilizar las siguientes credenciales para probar el login y la compra:
+
+* **Email:** ana.garcia@email.com (son de test, tranquilo ;) )
+* **Contraseña:** password123 (son de test, tranquilo ;) )
+
+## 🛠️ Tecnologías
+
+* **Backend:** Node.js, Express.
+* **Base de Datos:** MongoDB, Mongoose.
+* **Seguridad:** JWT (JSON Web Tokens), Bcrypt, Cookie-Parser.
+* **Frontend:** HTML5, Bootstrap 5, JavaScript (ES6).
